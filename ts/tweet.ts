@@ -10,21 +10,25 @@ class Tweet {
 	//returns either 'live_event', 'achievement', 'completed_event', or 'miscellaneous'
     get source():string {
         //TODO: identify whether the source is a live event, an achievement, a completed event, or miscellaneous.
+        if (this.text.startsWith("Just completed a")) {
+            return 'completed_event';
+        }
         return "unknown";
     }
 
     //returns a boolean, whether the text includes any content written by the person tweeting.
     get written():boolean {
-        //TODO: identify whether the tweet is written
-        return false;
+        if (this.text == null || this.text == "") {
+            return false;
+        }
+        return true;
     }
 
     get writtenText():string {
         if(!this.written) {
             return "";
         }
-        //TODO: parse the written text from the tweet
-        return "";
+        return this.text;
     }
 
     get activityType():string {
