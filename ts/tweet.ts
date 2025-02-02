@@ -23,10 +23,10 @@ class Tweet {
 
     //returns a boolean, whether the text includes any content written by the person tweeting.
     get written():boolean {
-        if (this.text == null || this.text == "") {
-            return false;
+        if (this.text.includes("-")) {
+            return true;
         }
-        return true;
+        return false;
     }
 
     get writtenText():string {
