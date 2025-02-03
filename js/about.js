@@ -84,7 +84,6 @@ function parseTweets(runkeeper_tweets) {
 	document.getElementsByClassName('miscellaneousPct')[0].textContent = (String(((miscCount / numTweets) * 100).toFixed(2)) + "%");
 	
 	// WRITTEN
-
 	var writtenCount = 0;
 	
 	for (let i = 0; i < tweet_array.length; i++) {

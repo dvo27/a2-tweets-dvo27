@@ -40,8 +40,13 @@ class Tweet {
         if (this.source != 'completed_event') {
             return "unknown";
         }
-        //TODO: parse the activity type from the text of the tweet
-        return "";
+
+        var split = this.text.split(" ");
+
+        if (!(split[5]).match(/\d/) && (split.includes("mi") || split.includes("km"))) {
+            return split[5];
+        }
+        return "unknown";
     }
 
     get distance():number {

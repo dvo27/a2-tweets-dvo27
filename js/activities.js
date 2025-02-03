@@ -5,14 +5,32 @@ function parseTweets(runkeeper_tweets) {
 		return;
 	}
 	
-	tweet_array = runkeeper_tweets.map(function(tweet) {
+	var tweet_array = runkeeper_tweets.map(function(tweet) {
 		return new Tweet(tweet.text, tweet.created_at);
 	});
+	
+	// Creating map of activities and their counts
+	const activityCount = new Map();
+	
+	for (let index = 0; index < tweet_array.length; index++) {
+		var activityType = tweet_array[index].activityType;
+		if (activityType != "unknown") {
+			if (activityCount.has(activityType)) {
+				// console.log("incrementing " + activityType + " to " + activityCount.get(activityType));
+				activityCount.set(activityType, activityCount.get(activityType) + 1);
+			} else {
+				activityCount.set(activityType, 1);
+			}
+		}
+	}
+	
+	document.getElementById('numberActivities').innerText = activityCount.size;
+
 
 	//TODO: create a new array or manipulate tweet_array to create a graph of the number of tweets containing each type of activity.
 
-	activity_vis_spec = {
-	  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+	var activity_vis_spec = {
+	"$schema": "https://vega.github.io/schema/vega-lite/v5.json",
 	  "description": "A graph of the number of Tweets containing each type of activity.",
 	  "data": {
 	    "values": tweet_array
