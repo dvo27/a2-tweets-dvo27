@@ -43,6 +43,7 @@ class Tweet {
 
         var split = this.text.split(" ");
 
+        // only include distance-based activities
         if (!(split[5]).match(/\d/) && (split.includes("mi") || split.includes("km"))) {
             return split[5];
         }
@@ -53,7 +54,19 @@ class Tweet {
         if(this.source != 'completed_event') {
             return 0;
         }
-        //TODO: prase the distance from the text of the tweet
+        var split = this.text.split(" ");
+
+        // only include distance-based activities
+        if (!(split[5]).match(/\d/) && (split.includes("mi") || split.includes("km"))) {
+            var distance = Number(split[3]);
+            
+            // km to mi conversion
+            if (split.includes("km")) {
+                distance /= 1.609;
+            }
+            return distance;
+        }
+        
         return 0;
     }
 

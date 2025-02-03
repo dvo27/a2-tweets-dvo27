@@ -12,11 +12,11 @@ function parseTweets(runkeeper_tweets) {
 	// Creating map of activities and their counts
 	const activityCount = new Map();
 	
+	// Updating count of each activity in tweet_array
 	for (let index = 0; index < tweet_array.length; index++) {
 		var activityType = tweet_array[index].activityType;
 		if (activityType != "unknown") {
 			if (activityCount.has(activityType)) {
-				// console.log("incrementing " + activityType + " to " + activityCount.get(activityType));
 				activityCount.set(activityType, activityCount.get(activityType) + 1);
 			} else {
 				activityCount.set(activityType, 1);
@@ -24,7 +24,49 @@ function parseTweets(runkeeper_tweets) {
 		}
 	}
 	
+	// Putting # of activities
 	document.getElementById('numberActivities').innerText = activityCount.size;
+
+	// Sorting activities based on highest count
+	const entries = Array.from(activityCount.entries());
+	entries.sort((a, b) => b[1] - a[1]);
+	
+	// Logging top three activities based on frequency
+	document.getElementById('firstMost').innerText = entries[0][0];
+	document.getElementById('secondMost').innerText = entries[1][0];
+	document.getElementById('thirdMost').innerText = entries[2][0];
+
+	// getting average distance of each activity
+	const activityDistances = new Map();
+	// Updating count of each activity in tweet_array
+	for (let index = 0; index < tweet_array.length; index++) {
+		var activityType = tweet_array[index].activityType;
+		var distance = tweet_array[index].distance;
+
+		if (activityType != "unknown") {
+			if (activityDistances.has(activityType)) {
+				activityDistances.set(activityType, activityDistances.get(activityType) + distance);
+			} else {
+				activityDistances.set(activityType, distance);
+			}
+		}
+	}
+
+	// Assign the average distance to each activity
+	for ( var [activity, distance] of activityDistances) {
+		let count = activityCount.get(activity)
+		activityDistances.set(activity, distance / count)
+	}
+
+	
+	// Sorting activity's distances based on longest distance
+	const distances = Array.from(activityDistances.entries());
+	distances.sort((a, b) => b[1] - a[1]);
+	
+
+	// List longest and shortest activiity by avg distance
+	document.getElementById("longestActivityType").innerText = distances[0][0];
+	document.getElementById("shortestActivityType").innerText = distances[distances.length - 1][0];
 
 
 	//TODO: create a new array or manipulate tweet_array to create a graph of the number of tweets containing each type of activity.
