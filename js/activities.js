@@ -38,6 +38,7 @@ function parseTweets(runkeeper_tweets) {
 
 	// getting average distance of each activity
 	const activityDistances = new Map();
+
 	// Updating count of each activity in tweet_array
 	for (let index = 0; index < tweet_array.length; index++) {
 		var activityType = tweet_array[index].activityType;
@@ -58,7 +59,6 @@ function parseTweets(runkeeper_tweets) {
 		activityDistances.set(activity, distance / count)
 	}
 
-	
 	// Sorting activity's distances based on longest distance
 	const distances = Array.from(activityDistances.entries());
 	distances.sort((a, b) => b[1] - a[1]);
@@ -68,6 +68,48 @@ function parseTweets(runkeeper_tweets) {
 	document.getElementById("longestActivityType").innerText = distances[0][0];
 	document.getElementById("shortestActivityType").innerText = distances[distances.length - 1][0];
 
+
+	// Find whether longest activities were on weekends or weekdays
+
+	// avg distances into weekend vs weekdays
+	var activitiesOnWeekdays = [];
+	var activitiesOnWeekends = [];
+	var weekdayDistanceAvg = 0;
+	var weekendDistanceAvg = 0;
+
+	// sort tweets based on distance and day
+	for (let index = 0; index < tweet_array.length; index++) {
+		const tweet = tweet_array[index];
+		const day = tweet.time.getDay();
+		
+		// day is weekend
+		if (day == 0 || day == 6) {
+			activitiesOnWeekends.push(tweet_array[index]);
+			weekendDistanceAvg += tweet.distance
+		} else {
+			activitiesOnWeekdays.push(tweet_array[index])
+			weekdayDistanceAvg += tweet.distance
+		}
+	}
+
+	// calc avg between weekday/weekend
+	weekdayDistanceAvg /= activitiesOnWeekdays.length;
+	weekendDistanceAvg /= activitiesOnWeekends.length;
+
+	if (weekdayDistanceAvg >= weekendDistanceAvg) {
+		document.getElementById('weekdayOrWeekendLonger').innerText = 'weekdays';
+	} else {
+		document.getElementById('weekdayOrWeekendLonger').innerText = 'weekends';
+	}
+
+	// we need to group activities based on
+
+	// are more distance activities done on weekends or weekdays?
+	// x = weekend and weekday bars
+	// y = avg distance of all activities
+
+	console.log(weekendDistanceAvg)
+	console.log(weekdayDistanceAvg)
 
 	//TODO: create a new array or manipulate tweet_array to create a graph of the number of tweets containing each type of activity.
 
