@@ -102,24 +102,34 @@ function parseTweets(runkeeper_tweets) {
 		document.getElementById('weekdayOrWeekendLonger').innerText = 'weekends';
 	}
 
-	// we need to group activities based on
-
-	// are more distance activities done on weekends or weekdays?
-	// x = weekend and weekday bars
-	// y = avg distance of all activities
-
-	console.log(weekendDistanceAvg)
-	console.log(weekdayDistanceAvg)
-
 	//TODO: create a new array or manipulate tweet_array to create a graph of the number of tweets containing each type of activity.
+
+	// Convert data to be vegalite-compatible
+	const activityData = entries.map(([activity, count]) => ({
+		Activity: activity,
+		Count: count
+	}));
 
 	var activity_vis_spec = {
 	"$schema": "https://vega.github.io/schema/vega-lite/v5.json",
 	  "description": "A graph of the number of Tweets containing each type of activity.",
 	  "data": {
-	    "values": tweet_array
+	    "values": activityData
+	  },
+	  "mark": {
+		"type": "point"
+	  },
+	  "encoding": {
+		"x": {
+			"field": "Activity",
+			"type": "nominal"
+		},
+		"y": {
+			"field": "Count",
+			"type": "quantitative",
+			"title": "# of Tweets"
+		},
 	  }
-	  //TODO: Add mark and encoding
 	};
 	vegaEmbed('#activityVis', activity_vis_spec, {actions:false});
 
