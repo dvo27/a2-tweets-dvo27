@@ -53,10 +53,12 @@ function parseTweets(runkeeper_tweets) {
 		}
 	}
 
+	const activityDistancesAverages = new Map()
+
 	// Assign the average distance to each activity
 	for ( var [activity, distance] of activityDistances) {
 		let count = activityCount.get(activity)
-		activityDistances.set(activity, distance / count)
+		activityDistancesAverages.set(activity, distance / count)
 	}
 
 	// Sorting activity's distances based on longest distance
@@ -117,7 +119,7 @@ function parseTweets(runkeeper_tweets) {
 	    "values": activityData
 	  },
 	  "mark": {
-		"type": "point"
+		"type": "bar"
 	  },
 	  "encoding": {
 		"x": {
@@ -132,9 +134,152 @@ function parseTweets(runkeeper_tweets) {
 	  }
 	};
 	vegaEmbed('#activityVis', activity_vis_spec, {actions:false});
+	
+	// we need to plot each distance of each tweet of each activity per day
 
-	//TODO: create the visualizations which group the three most-tweeted activities by the day of the week.
-	//Use those visualizations to answer the questions about which activities tended to be longest and when.
+	const topThreeActivities = entries.slice(0, 3).map(entry => entry[0]);
+
+	const distancesByDay = {
+		'Monday': {},
+		'Tuesday': {},
+		'Wednesday': {},
+		'Thursday': {},
+		'Friday': {},
+		'Saturday': {},
+		'Sunday': {}
+	};
+    // Populate distancesByDay with top activities initialized to 0
+    for (const day in distancesByDay) {
+        topThreeActivities.forEach(activity => {
+            distancesByDay[day][activity] = [];
+        });
+    }
+
+	
+    // Populate distancesByDay with data from tweets
+    tweet_array.forEach(tweet => {
+		const activity = tweet.activityType;
+        const distance = tweet.distance;
+        const dayOfTheWeek = tweet.time.toLocaleString('en-US', { weekday: 'long' });
+		
+        if (topThreeActivities.includes(activity)) {
+			distancesByDay[dayOfTheWeek][activity].push(distance);
+        }
+    });
+
+	// Get all distances of each activity every day into plottable array
+	const rawDistancePlotData = [];
+	for (const day in distancesByDay) {
+		for (const activity in distancesByDay[day]) {
+			distancesByDay[day][activity].forEach(distance => {
+				rawDistancePlotData.push({
+					Day: day,
+					Activity: activity,
+					Distance: distance
+				});
+			});
+		}
+	}
+
+	// Get all means of distances of each activity every day into plottable array
+	const meanDistancePlotData = [];
+	for (const day in distancesByDay) {
+		console.log(day)
+		for (const activity in distancesByDay[day]) {	
+			const distances = distancesByDay[day][activity];
+			const meanDistance = distances.reduce((sum, val) => sum+val, 0) / distances.length
+			console.log(meanDistance);
+
+			meanDistancePlotData.push({
+				Day: day,
+				Activity: activity,
+				Distance: meanDistance
+			});
+		}
+	}
+	
+	var distanceVisSpec = {
+		"$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+		"description": "A graph of the number of Tweets containing each type of activity.",
+		"data": {
+		  "values": rawDistancePlotData
+		},
+		"mark": {
+			"type": "point"
+		}, 	  
+		"encoding": {
+			"x": {
+				"field": "Day",
+				"type": "ordinal",
+				"title": "Time (day)",
+				"sort": ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+			},
+			"y": {
+				"field": "Distance",
+				"type": "quantitative",
+				"title": "Distance (miles)"
+			},
+			"color": {
+				"field": "Activity",
+				"type": "nominal"
+			},
+			"order": {
+				"field": "Activity",
+				"type": "nominal",
+				"sort": ["bike", "walk", "run"]
+			},
+		}
+	}
+
+	var meanDistanceVisSpec = {
+		"$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+		"description": "A graph of the number of Tweets containing each type of activity.",
+		"data": {
+		  "values": meanDistancePlotData
+		},
+		"mark": {
+			"type": "point"
+		}, 	  
+		"encoding": {
+			"x": {
+				"field": "Day",
+				"type": "ordinal",
+				"title": "Time (day)",
+				"sort": ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+			},
+			"y": {
+				"field": "Distance",
+				"type": "quantitative",
+				"title": "Distance (miles)"
+			},
+			"color": {
+				"field": "Activity",
+				"type": "nominal"
+			},
+			"order": {
+				"field": "Activity",
+				"type": "nominal",
+				"sort": ["bike", "walk", "run"]
+			},
+		}
+	}
+
+	// Clicking button shows graphs interchangibly
+	const button = document.getElementById("aggregate");
+	let showMean = true;
+	button.addEventListener("click", function() {
+		if (showMean) {
+			vegaEmbed('#distanceVisAggregated', meanDistanceVisSpec, { actions: false });
+			button.innerText = "Show all activities"
+			document.getElementById('distanceVis').innerHTML = '';
+		} else {
+			vegaEmbed('#distanceVis', distanceVisSpec, { actions: false });
+			button.innerText = "Show means"
+			document.getElementById('distanceVisAggregated').innerHTML = '';
+		}
+		showMean = !showMean;
+	})
+
 }
 
 //Wait for the DOM to load
