@@ -48,8 +48,8 @@ class Tweet {
             return split[5];
         } else if (!((split.includes("mi")) || split.includes("km")) && split[4].length > 2) {
             return split[4];
+            // make sure were not picking up invalid activities
         } else if (split[4] == "in") {
-            // console.log("split4 has in" + split[4]);
             return split[3];
         }
         return "unknown";
