@@ -46,6 +46,11 @@ class Tweet {
         // only include distance-based activities
         if (!(split[5]).match(/\d/) && (split.includes("mi") || split.includes("km"))) {
             return split[5];
+        } else if (!((split.includes("mi")) || split.includes("km")) && split[4].length > 2) {
+            return split[4];
+        } else if (split[4] == "in") {
+            // console.log("split4 has in" + split[4]);
+            return split[3];
         }
         return "unknown";
     }
@@ -71,10 +76,7 @@ class Tweet {
     }
 
     getHTMLTableRow(rowNumber:number):string {
-        const linkedText = this.text.replace(
-            /(https?:\/\/[^\s]+)/g,
-            '<a href="$1" target="_blank">$1</a>'
-        );
+        const linkedText = this.text.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>');
         return `
             <tr>
                 <td>${rowNumber}</td>
