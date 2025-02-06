@@ -66,12 +66,21 @@ class Tweet {
             }
             return distance;
         }
-        
+
         return 0;
     }
 
     getHTMLTableRow(rowNumber:number):string {
-        //TODO: return a table row which summarizes the tweet with a clickable link to the RunKeeper activity
-        return "<tr></tr>";
+        const linkedText = this.text.replace(
+            /(https?:\/\/[^\s]+)/g,
+            '<a href="$1" target="_blank">$1</a>'
+        );
+        return `
+            <tr>
+                <td>${rowNumber}</td>
+                <td>${this.activityType}</td>
+                <td>${linkedText}</td>
+            </tr>
+        `;
     }
 }
